@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/Ammce/ambasador-go/src/database"
+	"github.com/Ammce/ambasador-go/src/routes"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -11,10 +12,7 @@ func main() {
 	database.AutoMigrate()
 
 	app := fiber.New()
-
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("123 Helloo!!!")
-	})
+	routes.Setup(app)
 
 	app.Listen(":8080")
 }
