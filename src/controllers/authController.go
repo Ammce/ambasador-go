@@ -90,3 +90,36 @@ func Login(c *fiber.Ctx) error {
 		"message": "Success",
 	})
 }
+
+func User(c *fiber.Ctx) error {
+	cookie := c.Cookies("jwt")
+
+	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte("secret"), nil
+	})
+
+	if err != nil || !token.Valid {
+		c.Status(fiber.StatusBadRequest)
+		c.JSON(fiber.Map{
+			"message": "Invalid token",
+		})
+	}
+
+	payload := token.Claims.(*jwt.StandardClaims)
+
+	var user models.User
+
+	dbErr := database.DB.Where("id = ?", payload.Subject).First(&user)
+
+	if dbErr != nil {
+		c.Status(fiber.StatusBadRequest)
+		c.JSON(fiber.Map{
+			"message": "Error while accessing the user",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"data": user,
+	})
+}
