@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/Ammce/ambasador-go/src/database"
 	"github.com/Ammce/ambasador-go/src/models"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -63,5 +66,29 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(user)
+	var payload = jwt.StandardClaims{
+		Subject:   strconv.Itoa(int(user.Id)),
+		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+	}
+
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, payload).SignedString([]byte("secret"))
+
+	if err != nil {
+		return c.JSON(fiber.Map{
+			"message": "Error generating tokenn",
+		})
+	}
+
+	cookie := fiber.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		Expires:  time.Now().Add(time.Hour * 24),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
+
+	return c.JSON(fiber.Map{
+		"message": "Success",
+	})
 }
