@@ -122,3 +122,24 @@ func Logout(c *fiber.Ctx) error {
 		"message": "Success",
 	})
 }
+
+func UpdateUser(c *fiber.Ctx) error {
+	userId, _ := middlewares.GetUserId(c)
+	var data map[string]string
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+
+	user := models.User{
+		Id:        userId,
+		FirstName: data["first_name"],
+		LastName:  data["last_name"],
+		Email:     data["email"],
+	}
+
+	database.DB.Model(&user).Updates(&user)
+
+	return c.JSON(fiber.Map{
+		"user": user,
+	})
+}
