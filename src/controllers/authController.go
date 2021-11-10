@@ -131,7 +131,9 @@ func UpdateUser(c *fiber.Ctx) error {
 	}
 
 	user := models.User{
-		Id:        userId,
+		BaseModel: models.BaseModel{
+			Id: userId,
+		},
 		FirstName: data["first_name"],
 		LastName:  data["last_name"],
 		Email:     data["email"],
@@ -153,7 +155,9 @@ func UpdatePassword(c *fiber.Ctx) error {
 	}
 
 	user := models.User{
-		Id: userId,
+		BaseModel: models.BaseModel{
+			Id: userId,
+		},
 	}
 
 	user.SetPassword(data["password"])
