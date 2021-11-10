@@ -143,3 +143,24 @@ func UpdateUser(c *fiber.Ctx) error {
 		"user": user,
 	})
 }
+
+func UpdatePassword(c *fiber.Ctx) error {
+	userId, _ := middlewares.GetUserId(c)
+
+	var data map[string]string
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+
+	user := models.User{
+		Id: userId,
+	}
+
+	user.SetPassword(data["password"])
+
+	database.DB.Model(&user).Updates(&user)
+
+	return c.JSON(fiber.Map{
+		"message": "Success",
+	})
+}
