@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Ammce/ambasador-go/src/database"
+	"github.com/Ammce/ambasador-go/src/middlewares"
 	"github.com/Ammce/ambasador-go/src/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
@@ -92,24 +93,9 @@ func Login(c *fiber.Ctx) error {
 }
 
 func User(c *fiber.Ctx) error {
-	cookie := c.Cookies("jwt")
-
-	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("secret"), nil
-	})
-
-	if err != nil || !token.Valid {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"message": "Invalid token",
-		})
-	}
-
-	payload := token.Claims.(*jwt.StandardClaims)
-
 	var user models.User
-
-	dbErr := database.DB.Where("id = ?", payload.Subject).First(&user)
+	userId, _ := middlewares.GetUserId(c)
+	dbErr := database.DB.Where("id = ?", userId).First(&user)
 
 	if dbErr != nil {
 		c.Status(fiber.StatusBadRequest)
