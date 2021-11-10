@@ -20,4 +20,12 @@ func Setup(app *fiber.App) {
 	adminAuthenticated.Patch("/user", controllers.UpdateUser)
 	adminAuthenticated.Get("/ambasadors", controllers.GetAmbasadors)
 
+	productAdmin := adminAuthenticated.Group("product")
+
+	productAdmin.Post("/", controllers.CreateProduct)
+	productAdmin.Patch("/:id", controllers.UpdateProduct)
+	productAdmin.Get("/", controllers.Products)
+	productAdmin.Get("/:id", controllers.Product)
+	productAdmin.Delete("/:id", controllers.DeleteProduct)
+
 }

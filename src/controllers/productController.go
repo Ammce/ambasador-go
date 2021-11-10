@@ -49,23 +49,16 @@ func Product(c *fiber.Ctx) error {
 
 func UpdateProduct(c *fiber.Ctx) error {
 	id, _ := strconv.Atoi(c.Params("id"))
-	var data map[string]string
 
-	if err := c.BodyParser(&data); err != nil {
+	product := models.Product{
+		Id: uint(id),
+	}
+
+	if err := c.BodyParser(&product); err != nil {
 		return err
 	}
 
-	priceFloat, _ := strconv.ParseFloat(data["price"], 64)
-
-	product := models.Product{
-		Id:          uint(id),
-		Title:       data["title"],
-		Description: data["description"],
-		Price:       priceFloat,
-		Image:       data["image"],
-	}
-
-	database.DB.Find(&product)
+	database.DB.Model(&product).Updates(&product)
 
 	return c.JSON(fiber.Map{
 		"data": product,
