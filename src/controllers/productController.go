@@ -71,3 +71,14 @@ func UpdateProduct(c *fiber.Ctx) error {
 		"data": product,
 	})
 }
+
+func DeleteProduct(c *fiber.Ctx) error {
+	id, _ := strconv.Atoi(c.Params("id"))
+
+	product := models.Product{
+		Id: uint(id),
+	}
+
+	database.DB.Delete(&product)
+	return nil
+}
