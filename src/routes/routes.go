@@ -20,6 +20,9 @@ func Setup(app *fiber.App) {
 	adminAuthenticated.Patch("/user", controllers.UpdateUser)
 	adminAuthenticated.Get("/ambasadors", controllers.GetAmbasadors)
 
+	// Orders
+	adminAuthenticated.Get("/orders", controllers.Orders)
+
 	// Links
 	adminAuthenticated.Get("/user/:id/links", controllers.GetUserLinks)
 
