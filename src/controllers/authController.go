@@ -100,7 +100,7 @@ func User(c *fiber.Ctx) error {
 
 	if err != nil || !token.Valid {
 		c.Status(fiber.StatusBadRequest)
-		c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"message": "Invalid token",
 		})
 	}
@@ -121,5 +121,18 @@ func User(c *fiber.Ctx) error {
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
 		"data": user,
+	})
+}
+
+func Logout(c *fiber.Ctx) error {
+	cookie := fiber.Cookie{
+		Name:     "jwt",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
+		HTTPOnly: true,
+	}
+	c.Cookie(&cookie)
+	return c.JSON(fiber.Map{
+		"message": "Success",
 	})
 }
