@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -10,7 +9,6 @@ import (
 	"github.com/Ammce/ambasador-go/src/middlewares"
 	"github.com/Ammce/ambasador-go/src/models"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt"
 )
 
 func Register(c *fiber.Ctx) error {
@@ -66,12 +64,13 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	var payload = jwt.StandardClaims{
-		Subject:   strconv.Itoa(int(user.Id)),
-		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+	scope := "admin"
+
+	if strings.Contains(c.Path(), "/api/ambasador") {
+		scope = "ambasador"
 	}
 
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, payload).SignedString([]byte("secret"))
+	token, err := middlewares.GenerateToken(user.Id, scope)
 
 	if err != nil {
 		return c.JSON(fiber.Map{
