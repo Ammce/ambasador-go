@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Ammce/ambasador-go/src/database"
@@ -31,7 +32,7 @@ func Register(c *fiber.Ctx) error {
 		FirstName:   data["first_name"],
 		LastName:    data["last_name"],
 		Email:       data["email"],
-		IsAmbasador: false,
+		IsAmbasador: strings.Contains(c.Path(), "/api/ambasador"),
 	}
 
 	user.SetPassword(data["password"])
