@@ -104,9 +104,20 @@ func User(c *fiber.Ctx) error {
 		})
 	}
 
+	if strings.Contains(c.Path(), "/api/ambasador") {
+		ambasador := models.Ambasador(user)
+		ambasador.CalculateRevenue(database.DB)
+		c.Status(fiber.StatusOK)
+		return c.JSON(fiber.Map{
+			"ambasador": user,
+		})
+	}
+
+	admin := models.Admin(user)
+	admin.CalculateRevenue(database.DB)
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
-		"data": user,
+		"admin": admin,
 	})
 }
 
