@@ -157,5 +157,23 @@ func ProductsBackend(c *fiber.Ctx) error {
 
 	}
 
-	return c.JSON(products)
+	page, _ := strconv.Atoi(c.Query("page", "1"))
+	total := len(products)
+	perPage := 9
+	var data []models.Product = products
+
+	if total <= page*perPage && total >= (page-1)*perPage {
+		data = products[(page-1)*perPage : total]
+	} else if total >= page*perPage {
+		data = products[(page-1)*perPage : perPage*page]
+	} else {
+		data = []models.Product{}
+	}
+
+	return c.JSON(fiber.Map{
+		"data":      data,
+		"total":     total,
+		"page":      page,
+		"last_page": total/perPage + 1,
+	})
 }
