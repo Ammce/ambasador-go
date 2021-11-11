@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"context"
+	"encoding/json"
 	"strconv"
+	"time"
 
 	"github.com/Ammce/ambasador-go/src/database"
 	"github.com/Ammce/ambasador-go/src/models"
@@ -78,4 +81,30 @@ func DeleteProduct(c *fiber.Ctx) error {
 
 	database.DB.Delete(&product)
 	return nil
+}
+
+func ProductsFrontend(c *fiber.Ctx) error {
+	var products []models.Product
+
+	var ctx = context.Background()
+
+	result, err := database.Cache.Get(ctx, "products_frontend").Result()
+
+	if err != nil {
+		database.DB.Find(&products)
+		bytes, errMarsh := json.Marshal(products)
+
+		if errMarsh != nil {
+			panic(errMarsh)
+		}
+
+		if errKey := database.Cache.Set(ctx, "products_frontend", bytes, 30*time.Minute).Err(); errKey != nil {
+			panic(errKey)
+		}
+
+	} else {
+		json.Unmarshal([]byte(result), &products)
+	}
+
+	return c.JSON(products)
 }
