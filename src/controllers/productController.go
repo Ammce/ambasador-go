@@ -67,9 +67,17 @@ func UpdateProduct(c *fiber.Ctx) error {
 
 	database.DB.Model(&product).Updates(&product)
 
+	go deleteCache("products_frontend")
+	go deleteCache("products_backend")
+
 	return c.JSON(fiber.Map{
 		"data": product,
 	})
+}
+
+func deleteCache(key string) {
+	time.Sleep(5 * time.Second)
+	database.Cache.Del(context.Background(), key)
 }
 
 func DeleteProduct(c *fiber.Ctx) error {
