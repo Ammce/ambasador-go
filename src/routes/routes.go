@@ -13,6 +13,7 @@ func Setup(app *fiber.App) {
 	admin.Post("/register", controllers.Register)
 	admin.Post("/login", controllers.Login)
 	admin.Get("/products/frontend", controllers.ProductsFrontend)
+	admin.Get("/products/backend", controllers.ProductsBackend)
 
 	adminAuthenticated := admin.Use(middlewares.IsAuth)
 

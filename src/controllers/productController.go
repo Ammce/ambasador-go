@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Ammce/ambasador-go/src/database"
@@ -104,6 +105,41 @@ func ProductsFrontend(c *fiber.Ctx) error {
 
 	} else {
 		json.Unmarshal([]byte(result), &products)
+	}
+
+	return c.JSON(products)
+}
+
+func ProductsBackend(c *fiber.Ctx) error {
+	var products []models.Product
+
+	var ctx = context.Background()
+
+	result, err := database.Cache.Get(ctx, "products_backend").Result()
+
+	if err != nil {
+		database.DB.Find(&products)
+		bytes, errMarsh := json.Marshal(products)
+
+		if errMarsh != nil {
+			panic(errMarsh)
+		}
+
+		database.Cache.Set(ctx, "products_backend", bytes, 30*time.Minute)
+
+	} else {
+		json.Unmarshal([]byte(result), &products)
+	}
+
+	var searchedProducts []models.Product
+
+	if s := c.Query("s"); s != "" {
+		for _, product := range products {
+			if strings.Contains(product.Title, s) || strings.Contains(product.Description, s) {
+				searchedProducts = append(searchedProducts, product)
+			}
+		}
+		return c.JSON(searchedProducts)
 	}
 
 	return c.JSON(products)
